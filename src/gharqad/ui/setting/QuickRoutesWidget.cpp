@@ -14,6 +14,10 @@
 #include <QColor>
 #include <QComboBox>
 #include <QDir>
+#include <QDialogButtonBox>
+#include <QPlainTextEdit>
+#include <QRegularExpression>
+#include <QTabWidget>
 #include <QEvent>
 #include <QFileDialog>
 #include <QFileInfo>
@@ -95,16 +99,16 @@ QuickRoutesWidget::QuickRoutesWidget(QWidget *parent) : QWidget(parent) {
     root->setContentsMargins(8, 8, 8, 8);
     root->setSpacing(8);
 
-    auto *splitter = new QSplitter(Qt::Vertical, this);
-    splitter->setChildrenCollapsible(false);
-    splitter->setHandleWidth(8);
-    splitter->addWidget(makeSection(tr("Applications"), &processTable, &processCountBadge,
-                                    &processRemoveButton, tr("Application"), true));
-    splitter->addWidget(makeSection(tr("Domains"), &domainTable, &domainCountBadge,
-                                    &domainRemoveButton, tr("Domain"), false, true));
-    splitter->setStretchFactor(0, 1);
-    splitter->setStretchFactor(1, 1);
-    root->addWidget(splitter, 1);
+    auto *heading = new QLabel(tr("Routing workspace"), this);
+    heading->setObjectName(QStringLiteral("routesWorkspaceTitle"));
+    root->addWidget(heading);
+    auto *tabs = new QTabWidget(this);
+    tabs->setObjectName(QStringLiteral("routesWorkspaceTabs"));
+    tabs->addTab(makeSection(tr("Applications"), &processTable, &processCountBadge,
+                            &processRemoveButton, tr("Application"), true), tr("Processes"));
+    tabs->addTab(makeSection(tr("Domains"), &domainTable, &domainCountBadge,
+                            &domainRemoveButton, tr("Domain"), false, true), tr("Domains"));
+    root->addWidget(tabs, 1);
 
     auto *saveBar = new QFrame(this);
     saveBar->setObjectName(QStringLiteral("routesSaveBar"));
@@ -175,6 +179,16 @@ QWidget *QuickRoutesWidget::makeSection(const QString &title, QTableWidget **tab
     header->addWidget(addButton);
 
     if (processSection) {
+        auto *emptyButton = new QPushButton(tr("Empty process"), headerFrame);
+        header->addWidget(emptyButton);
+        connect(emptyButton, &QPushButton::clicked, this, [this] {
+            addProcessRow({}, Configs::proxyID);
+            const int row = processTable->rowCount() - 1;
+            processTable->setRowHidden(row, false);
+            processTable->scrollToItem(processTable->item(row, 0));
+            if (auto *edit = findCellLineEdit(processTable, row, 0, QStringLiteral("process_path")))
+                edit->setFocus();
+        });
         auto *runningButton = new QPushButton(tr("Running processes..."), headerFrame);
         runningButton->setObjectName(QStringLiteral("routesActionButton"));
         runningButton->setCursor(Qt::PointingHandCursor);
@@ -276,7 +290,47 @@ QWidget *QuickRoutesWidget::makeSection(const QString &title, QTableWidget **tab
                 processTable->scrollToItem(processTable->item(last, 0));
             }
         } else {
-            addDomainRow({}, Configs::proxyID);
+            QDialog dialog(this);
+            dialog.setWindowTitle(tr("Add hosts"));
+            dialog.resize(580, 430);
+            auto *form = new QVBoxLayout(&dialog);
+            auto *help = new QLabel(tr("Enter hosts separated by lines, commas or semicolons. Each host becomes a separate rule."), &dialog);
+            help->setWordWrap(true);
+            form->addWidget(help);
+            auto *hosts = new QPlainTextEdit(&dialog);
+            hosts->setPlaceholderText(QStringLiteral("example.com\n*.example.org\napi.example.net"));
+            form->addWidget(hosts, 1);
+            auto *options = new QHBoxLayout();
+            auto *method = makeMethodCombo(QStringLiteral("suffix"));
+            auto *outbound = makeOutboundCombo(Configs::proxyID);
+            options->addWidget(new QLabel(tr("Method"), &dialog));
+            options->addWidget(method);
+            options->addWidget(new QLabel(tr("Outbound"), &dialog));
+            options->addWidget(outbound, 1);
+            form->addLayout(options);
+            auto *buttons = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel, &dialog);
+            buttons->button(QDialogButtonBox::Ok)->setText(tr("Add"));
+            buttons->button(QDialogButtonBox::Cancel)->setText(tr("Cancel"));
+            buttons->button(QDialogButtonBox::Ok)->setEnabled(false);
+            connect(hosts, &QPlainTextEdit::textChanged, buttons, [hosts, buttons] {
+                buttons->button(QDialogButtonBox::Ok)->setEnabled(!hosts->toPlainText().trimmed().isEmpty());
+            });
+            connect(buttons, &QDialogButtonBox::accepted, &dialog, &QDialog::accept);
+            connect(buttons, &QDialogButtonBox::rejected, &dialog, &QDialog::reject);
+            form->addWidget(buttons);
+            if (dialog.exec() != QDialog::Accepted) return;
+            QStringList added;
+            const auto entries = hosts->toPlainText().split(QRegularExpression(QStringLiteral("[\\s,;]+")), Qt::SkipEmptyParts);
+            for (QString host : entries) {
+                QString matchMethod = method->currentData().toString();
+                if (host.startsWith(QStringLiteral("*."))) {
+                    host.remove(0, 2);
+                    matchMethod = QStringLiteral("suffix");
+                }
+                if (host.isEmpty() || added.contains(host)) continue;
+                added.append(host);
+                addDomainRow(host, outbound->currentData().toInt(), matchMethod);
+            }
             const int last = domainTable->rowCount() - 1;
             if (last >= 0) {
                 if (domainTable->item(last, 0) != nullptr) {
@@ -454,7 +508,7 @@ void QuickRoutesWidget::applyVisualStyle() {
                           : (palette().color(QPalette::Window).lightness() < 128 ||
                              palette().color(QPalette::Base).lightness() < 128);
 
-    const QString qss = dark
+    QString qss = dark
         ? QStringLiteral(
               "QTableWidget#routesTable {"
               "  background-color: rgba(18, 20, 24, 170);"
@@ -722,6 +776,15 @@ void QuickRoutesWidget::applyVisualStyle() {
               "  background-color: #1d4ed8;"
               "}");
 
+    qss += QStringLiteral(
+        "QLabel#routesWorkspaceTitle { font-size: 20px; font-weight: 700; padding: 4px 8px; }"
+        "QTabWidget#routesWorkspaceTabs::pane { border: none; }"
+        "QTabWidget#routesWorkspaceTabs QTabBar::tab { padding: 9px 24px; min-width: 100px; }"
+        "QFrame#routesSectionHeader { padding: 6px; }"
+        "QLineEdit { padding: 5px 8px; border-radius: 6px; }"
+        "QComboBox { padding: 4px 8px; border-radius: 6px; }"
+        "QPushButton { padding: 6px 12px; border-radius: 6px; }"
+    );
     if (styleSheet() != qss) {
         setStyleSheet(qss);
     }

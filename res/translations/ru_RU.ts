@@ -5261,6 +5261,12 @@ Request payload was: %2</source>
 </context>
 <context>
     <name>QuickRoutesWidget</name>
+    <message><source>Routing workspace</source><translation>Управление маршрутами</translation></message>
+    <message><source>Processes</source><translation>Процессы</translation></message>
+    <message><source>Empty process</source><translation>Пустой процесс</translation></message>
+    <message><source>Add hosts</source><translation>Добавить хосты</translation></message>
+    <message><source>Cancel</source><translation>Отмена</translation></message>
+    <message><source>Enter hosts separated by lines, commas or semicolons. Each host becomes a separate rule.</source><translation>Введите хосты по одному на строку, через запятую или точку с запятой. Каждый хост станет отдельным правилом.</translation></message>
     <message>
         <source>Search rules...</source>
         <translation>Поиск правил…</translation>
@@ -5379,27 +5385,27 @@ Request payload was: %2</source>
     <message>
         <location filename="../../src/gharqad/ui/setting/QuickRoutesWidget.cpp" line="94" />
         <source>Outbound</source>
-        <translation>Outbound</translation>
+        <translation>Направление</translation>
     </message>
     <message>
         <location filename="../../src/gharqad/ui/setting/QuickRoutesWidget.cpp" line="108" />
         <source>proxy</source>
-        <translation>proxy</translation>
+        <translation>Через прокси</translation>
     </message>
     <message>
         <location filename="../../src/gharqad/ui/setting/QuickRoutesWidget.cpp" line="109" />
         <source>direct</source>
-        <translation>direct</translation>
+        <translation>Напрямую</translation>
     </message>
     <message>
         <location filename="../../src/gharqad/ui/setting/QuickRoutesWidget.cpp" line="110" />
         <source>block</source>
-        <translation>block</translation>
+        <translation>Блокировать</translation>
     </message>
     <message>
         <location filename="../../src/gharqad/ui/setting/QuickRoutesWidget.cpp" line="148" />
         <source>Missing outbound (%1)</source>
-        <translation>Недоступный outbound (%1)</translation>
+        <translation>Недоступное направление (%1)</translation>
     </message>
     <message>
         <location filename="../../src/gharqad/ui/setting/QuickRoutesWidget.cpp" line="163" />

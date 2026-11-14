@@ -5262,6 +5262,14 @@ Request payload was: %2</source>
 <context>
     <name>QuickRoutesWidget</name>
     <message>
+        <source>Search rules...</source>
+        <translation>Поиск правил…</translation>
+    </message>
+    <message>
+        <source>Route selected...</source>
+        <translation>Направить выбранные…</translation>
+    </message>
+    <message>
         <location filename="../../src/gharqad/ui/setting/QuickRoutesWidget.cpp" line="115" />
         <source>Application routes match the .exe name. Use Tun mode to capture apps that do not use the system proxy. Saving restarts the core.</source>
         <translation>Правила приложений сопоставляются по имени .exe. Включите режим TUN для перехвата программ, игнорирующих системный прокси. Сохранение перезапускает ядро.</translation>

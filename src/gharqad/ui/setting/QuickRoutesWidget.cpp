@@ -30,6 +30,7 @@
 #include <QLabel>
 #include <QLineEdit>
 #include <QMouseEvent>
+#include <QMenu>
 #include <QPalette>
 #include <QPushButton>
 #include <QShowEvent>
@@ -219,6 +220,46 @@ QWidget *QuickRoutesWidget::makeSection(const QString &title, QTableWidget **tab
     }
     layout->addWidget(created, 1);
 
+    auto *tools = new QHBoxLayout();
+    auto *search = new QLineEdit(section);
+    search->setPlaceholderText(tr("Search rules..."));
+    search->setClearButtonEnabled(true);
+    search->setMinimumHeight(30);
+    tools->addWidget(search, 1);
+    auto *bulk = new QPushButton(tr("Route selected..."), section);
+    bulk->setMinimumHeight(30);
+    bulk->setEnabled(false);
+    tools->addWidget(bulk);
+    layout->insertLayout(1, tools);
+    connect(created->selectionModel(), &QItemSelectionModel::selectionChanged, bulk,
+            [created, bulk] { bulk->setEnabled(!created->selectionModel()->selectedRows().isEmpty()); });
+    connect(search, &QLineEdit::textChanged, created, [created, processSection](const QString &text) {
+        created->clearSelection();
+        for (int row = 0; row < created->rowCount(); ++row) {
+            auto *edit = findCellLineEdit(created, row, 0, processSection
+                ? QStringLiteral("process_path") : QStringLiteral("domain_edit"));
+            created->setRowHidden(row, edit != nullptr &&
+                !edit->text().contains(text.trimmed(), Qt::CaseInsensitive));
+        }
+    });
+    connect(addButton, &QPushButton::clicked, search, &QLineEdit::clear);
+    connect(bulk, &QPushButton::clicked, this, [this, created, bulk, domainSection] {
+        QMenu menu(this);
+        for (const auto &choice : collectOutbounds()) {
+            auto *action = menu.addAction(choice.name);
+            connect(action, &QAction::triggered, this, [created, domainSection, choice] {
+                const auto rows = created->selectionModel()->selectedRows();
+                for (const auto &index : rows) {
+                    if (created->isRowHidden(index.row())) continue;
+                    auto *combo = findCellCombo(created, index.row(), domainSection ? 2 : 1,
+                                                QStringLiteral("outbound_combo"));
+                    if (combo != nullptr) combo->setCurrentIndex(combo->findData(choice.id));
+                }
+            });
+        }
+        menu.exec(bulk->mapToGlobal(QPoint(0, bulk->height())));
+    });
+
     connect(created->selectionModel(), &QItemSelectionModel::selectionChanged, this,
             [this, created] { syncSectionState(created); });
 
@@ -308,6 +349,13 @@ bool QuickRoutesWidget::eventFilter(QObject *watched, QEvent *event) {
     auto *widget = qobject_cast<QWidget *>(watched);
     if (widget == nullptr) {
         return QWidget::eventFilter(watched, event);
+    }
+
+    // Scrolling must not silently change the routing destination.
+    if (event->type() == QEvent::Wheel && qobject_cast<QComboBox *>(widget) != nullptr &&
+        !widget->hasFocus()) {
+        event->ignore();
+        return true;
     }
 
     if (event->type() == QEvent::Enter && widget->objectName() == QLatin1String("routeRowCell")) {
@@ -883,6 +931,7 @@ void QuickRoutesWidget::fillOutboundCombo(QComboBox *combo, const QList<Outbound
 QComboBox *QuickRoutesWidget::makeOutboundCombo(int selectedId) {
     auto *combo = new QComboBox();
     combo->setObjectName(QStringLiteral("outbound_combo"));
+    combo->setFocusPolicy(Qt::StrongFocus);
     combo->setMinimumHeight(30);
     combo->setSizeAdjustPolicy(QComboBox::AdjustToMinimumContentsLengthWithIcon);
     fillOutboundCombo(combo, collectOutbounds(), selectedId);
@@ -923,8 +972,8 @@ QWidget *QuickRoutesWidget::makeProcessEditor(const QString &path) {
     chip->setObjectName(QStringLiteral("processSelectChip"));
     chip->setAttribute(Qt::WA_StyledBackground, true);
     chip->setCursor(Qt::PointingHandCursor);
-    chip->setMinimumWidth(165);
-    chip->setMaximumWidth(225);
+    chip->setMinimumWidth(120);
+    chip->setMaximumWidth(180);
     chip->setMinimumHeight(30);
     chip->setProperty("rowSelected", false);
     registerRowSurface(chip);
@@ -1070,6 +1119,7 @@ QString QuickRoutesWidget::processPathAt(int row) const {
 QComboBox *QuickRoutesWidget::makeMethodCombo(const QString &method) {
     auto *combo = new QComboBox();
     combo->setObjectName(QStringLiteral("method_combo"));
+    combo->setFocusPolicy(Qt::StrongFocus);
     combo->setMinimumHeight(30);
     combo->setSizeAdjustPolicy(QComboBox::AdjustToMinimumContentsLengthWithIcon);
     combo->addItem(tr("keyword"), QStringLiteral("keyword"));

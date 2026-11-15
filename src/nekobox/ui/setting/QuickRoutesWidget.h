@@ -14,6 +14,7 @@ class QLineEdit;
 class QPushButton;
 class QShowEvent;
 class QTableWidget;
+class QToolButton;
 QT_END_NAMESPACE
 
 class QuickRoutesWidget : public QWidget {
@@ -80,6 +81,7 @@ private:
     QComboBox *makeMethodCombo(const QString &method);
 
     QWidget *makeProcessEditor(const QString &path);
+    QToolButton *makeRemoveButton(QWidget *parent);
 
     QWidget *makeDomainEditor(const QString &domain, QComboBox *methodCombo);
 

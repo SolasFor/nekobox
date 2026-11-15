@@ -5261,6 +5261,13 @@ Request payload was: %2</source>
 </context>
 <context>
     <name>QuickRoutesWidget</name>
+    <message><source>Existing profile (%1)</source><translation>Сохранённый профиль (%1)</translation></message>
+    <message><source>Exact domain</source><translation>По домену</translation></message>
+    <message><source>Domain and subdomains</source><translation>По домену и поддоменам</translation></message>
+    <message><source>Substring (legacy)</source><translation>Подстрока (старое правило)</translation></message>
+    <message><source>Matches only this domain</source><translation>Совпадает только с указанным доменом</translation></message>
+    <message><source>Remove rule</source><translation>Удалить правило</translation></message>
+    <message><source>Domain, for example: example.com</source><translation>Домен, например: example.com</translation></message>
     <message><source>Routing workspace</source><translation>Управление маршрутами</translation></message>
     <message><source>Processes</source><translation>Процессы</translation></message>
     <message><source>Empty process</source><translation>Пустой процесс</translation></message>

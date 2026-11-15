@@ -1060,8 +1060,8 @@ MainWindow::MainWindow(QWidget *parent)
   loadShortcuts();
 
   // setup log
-  MainWindowState::restoreSplitter(ui->splitter,
-      DecodeB64IfValid(Configs::windowSettings->splitter_state));
+  MainWindowState::restoreSplitter(ui->splitter, {});
+  QTimer::singleShot(0, this, [this] { ui->splitter->setSizes({250, 750}); });
   ui->splitter->handle(1)->setToolTip(
       tr("Drag to resize panels. Double-click to split equally."));
   connect(ui->menu_reset_panels, &QAction::triggered, this, [this] {

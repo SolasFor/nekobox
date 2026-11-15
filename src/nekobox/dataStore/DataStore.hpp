@@ -39,7 +39,7 @@ namespace Configs {
         QList<int> process_outbound;
         QStringList domain_match;
         QList<int> domain_outbound;
-        // "keyword" (substring match) or "suffix" (domain and its subdomains).
+        // "domain" (exact), "suffix" (domain and subdomains), or legacy "keyword".
         QStringList domain_method;
 
         // Keeps every match list and its outbound list the same length.

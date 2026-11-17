@@ -8,6 +8,20 @@ param(
 
 $ErrorActionPreference = "Stop"
 
+function Get-FileSha256([string]$Path) {
+    $sha = [System.Security.Cryptography.SHA256]::Create()
+    try {
+        $stream = [System.IO.File]::Open($Path, [System.IO.FileMode]::Open, [System.IO.FileAccess]::Read, [System.IO.FileShare]::ReadWrite)
+        try {
+            return [BitConverter]::ToString($sha.ComputeHash($stream)).Replace("-", "")
+        } finally {
+            $stream.Dispose()
+        }
+    } finally {
+        $sha.Dispose()
+    }
+}
+
 if (-not $ArtifactDir -and -not $ZipPath) {
     throw "Specify either -ArtifactDir (directory with artifacts.tgz) or -ZipPath (direct *windows64*.zip)."
 }
@@ -51,14 +65,52 @@ if ($running) {
         throw "NekoBox is running (PID: $($running.Id -join ', ')). Close it first or pass -Force."
     }
     Write-Host "== stopping NekoBox" -ForegroundColor Yellow
-    $running | Stop-Process -Force
-    Start-Sleep -Seconds 3
+    foreach ($p in (Get-Process -Name nekobox -ErrorAction SilentlyContinue)) {
+        try { $null = $p.CloseMainWindow() } catch {}
+    }
+    for ($i = 0; $i -lt 6; $i++) {
+        if (-not (Get-Process -Name nekobox -ErrorAction SilentlyContinue)) { break }
+        Start-Sleep -Milliseconds 500
+    }
+    Get-Process -Name nekobox -ErrorAction SilentlyContinue | Stop-Process -Force -ErrorAction SilentlyContinue
+
+    for ($i = 0; $i -lt 12; $i++) {
+        if (-not (Get-Process -Name nekobox_core -ErrorAction SilentlyContinue)) { break }
+        Start-Sleep -Milliseconds 500
+    }
+
+    if (Get-Process -Name nekobox_core -ErrorAction SilentlyContinue) {
+        $launcherFile = Join-Path $Target "nekobox_core.exe.elevated_launcher"
+        if (Test-Path $launcherFile) {
+            try {
+                $launcher = Get-Content $launcherFile -Raw -Encoding UTF8 | ConvertFrom-Json
+                if ($launcher.task) {
+                    & schtasks.exe /End /TN $launcher.task 2>$null | Out-Null
+                }
+            } catch {}
+        }
+        Get-Process -Name nekobox_core -ErrorAction SilentlyContinue | Stop-Process -Force -ErrorAction SilentlyContinue
+        Start-Sleep -Seconds 2
+    }
+}
+
+$excludeFiles = @()
+$targetCore = Join-Path $Target "nekobox_core.exe"
+if ((Get-Process -Name nekobox_core -ErrorAction SilentlyContinue) -and (Test-Path $targetCore)) {
+    $srcCoreHash = Get-FileSha256 $core
+    $dstCoreHash = Get-FileSha256 $targetCore
+    if ($srcCoreHash -eq $dstCoreHash) {
+        Write-Host "== nekobox_core.exe is unchanged (SHA-256 match); skipping locked elevated process" -ForegroundColor Yellow
+        $excludeFiles += "nekobox_core.exe"
+    } else {
+        throw "nekobox_core.exe is still running with elevated privileges and differs from the new build. Exit NekoBox from the tray or run PowerShell as Administrator."
+    }
 }
 
 $backup = Join-Path $BackupRoot ("backup-" + (Get-Date -Format "yyyyMMdd-HHmmss"))
 New-Item -ItemType Directory -Force $backup | Out-Null
 Write-Host "== backup current files -> $backup" -ForegroundColor Cyan
-foreach ($name in @("nekobox.exe", "nekobox.dll", "nekobox_core.exe", "updater.exe", "xray.exe")) {
+foreach ($name in @("nekobox.exe", "nekobox.dll", "nekobox_core.exe", "nekobox_core.exe.elevated_launcher", "updater.exe", "xray.exe")) {
     $src = Join-Path $Target $name
     if (Test-Path $src) { Copy-Item $src $backup }
 }
@@ -69,8 +121,15 @@ if (Test-Path $settings) {
 }
 
 Write-Host "== copying new build (settings untouched)" -ForegroundColor Cyan
-robocopy $newRoot.FullName $Target /E /XD settings /NFL /NDL /NJH /NJS /NP | Out-Null
+$roboArgs = @($newRoot.FullName, $Target, "/E", "/XD", "settings", "/R:3", "/W:1", "/NFL", "/NDL", "/NJH", "/NJS", "/NP")
+if ($excludeFiles.Count -gt 0) {
+    $roboArgs += "/XF"
+    $roboArgs += $excludeFiles
+}
+& robocopy @roboArgs | Out-Null
 if ($LASTEXITCODE -ge 8) { throw "robocopy failed with exit code $LASTEXITCODE" }
+
+Remove-Item $work -Recurse -Force -ErrorAction SilentlyContinue
 
 Write-Host ""
 Write-Host "Done. Backup: $backup" -ForegroundColor Green

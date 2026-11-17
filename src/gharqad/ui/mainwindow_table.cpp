@@ -682,8 +682,8 @@ QVariant MyTableModel::data(const QModelIndex &index, int role) const
                 case 1:
                 case 0:
                 if (row == Configs::dataStore->started_id){
-                    QColor green(0x32, 0xCD, 0x32);
-                    return QBrush(green);
+                    QColor activeSage(0x3D, 0x9A, 0x68);
+                    return QBrush(activeSage);
                 }
                 if (person->chain_link){
                     return QBrush(Qt::gray);

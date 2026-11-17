@@ -326,8 +326,8 @@ DialogBasicSettings::DialogBasicSettings(MainWindow *parent)
 
     //
     ui->theme->addItem("System");
-    ui->theme->addItem("Modern Dark");
-    ui->theme->addItem("Modern Light");
+    ui->theme->addItem("Claude Dark");
+    ui->theme->addItem("Claude Light");
     for (const QString &styleKey : QStyleFactory::keys()) {
         if (ui->theme->findText(styleKey, Qt::MatchFixedString) < 0) {
             ui->theme->addItem(styleKey);
@@ -341,10 +341,16 @@ DialogBasicSettings::DialogBasicSettings(MainWindow *parent)
     ui->theme->addItem("LightBlue");
     ui->theme->addItem("FlatGray");
     //
-    if (settings->theme.isEmpty() || ui->theme->findText(settings->theme, Qt::MatchFixedString) < 0) {
+    QString configuredTheme = settings->theme;
+    if (configuredTheme.compare("Modern Dark", Qt::CaseInsensitive) == 0) {
+        configuredTheme = QStringLiteral("Claude Dark");
+    } else if (configuredTheme.compare("Modern Light", Qt::CaseInsensitive) == 0) {
+        configuredTheme = QStringLiteral("Claude Light");
+    }
+    if (configuredTheme.isEmpty() || ui->theme->findText(configuredTheme, Qt::MatchFixedString) < 0) {
         ui->theme->setCurrentText("System");
     } else {
-        ui->theme->setCurrentText(settings->theme);
+        ui->theme->setCurrentText(configuredTheme);
     }
     //
     connect(ui->theme, static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged), this, [=,this](int index) {

@@ -1,4 +1,4 @@
-name: NyameBox build matrix
+name: NekoBox build
 on:
   push:
     branches: [main]

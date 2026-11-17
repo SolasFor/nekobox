@@ -292,19 +292,19 @@ QColor StartStopButton::modeColor(Icon::TrayIconStatus m) const {
 
 QColor StartStopButton::idleRingColor() const {
     QColor c = palette().color(QPalette::WindowText);
-    c.setAlphaF(0.12);
+    c.setAlphaF(0.18);
     return c;
 }
 
 QColor StartStopButton::glyphColor() const {
-    if (m_state == State::RUNNING || m_state == State::DISCONNECTING) return {0x99, 0x46, 0x46};
-    return Qt::darkGreen;
+    if (m_state == State::RUNNING || m_state == State::DISCONNECTING) return {0xC9, 0x55, 0x45};
+    return {0xD9, 0x77, 0x57};
 }
 
 QColor StartStopButton::targetRingColor() const {
     switch (m_state) {
         case State::CONNECTING:
-        case State::DISCONNECTING: return {0xFF, 0xB3, 0x2C};
+        case State::DISCONNECTING: return {0xE0, 0x94, 0x48};
         case State::RUNNING: return modeColor(m_mode);
         default: return idleRingColor();
     }

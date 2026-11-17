@@ -112,10 +112,10 @@ ProxyColorRule::ProxyColorRule(int a1, int a2, int a3, int a4, bool a5, QColor a
 }
 
 std::list<ProxyColorRule> Configs::latencyColorList = {
-    {1, 5, 0, 0, false, Qt::darkGreen},
-    {6, 5, 0, 0, false, QColor(128, 0, 128)},
-    {0, 0, 0, 0, false, QColor(255, 165, 0)},
-    {0, 0, 0, 0, true, Qt::red}};
+    {1, 5, 0, 0, false, QColor(0x3D, 0x9A, 0x68)},
+    {6, 5, 0, 0, false, QColor(0xD9, 0x77, 0x57)},
+    {0, 0, 0, 0, false, QColor(0xD4, 0x88, 0x2A)},
+    {0, 0, 0, 0, true, QColor(0xD6, 0x53, 0x47)}};
 
 using Configs::latencyColorList;
 using Configs::QListInt2Color;

@@ -225,35 +225,35 @@ void MainWindow::changeEventTrigger(bool fontChange){
   const bool dark = ThemeManager::isDarkEffective(Configs::windowSettings->theme);
   const int radius = qMax(4, Configs::windowSettings->indicator_border_radius > 0
                                  ? Configs::windowSettings->indicator_border_radius
-                                 : 6);
+                                 : 8);
   QString staticStatusCss;
   QString interactiveStatusCss;
   if (Configs::windowSettings->enable_indicator_borders) {
     if (dark) {
       staticStatusCss = QStringLiteral(
-                            "QLabel { background-color: rgba(255, 255, 255, 9);"
-                            " border: 1px solid rgba(255, 255, 255, 24);"
+                            "QLabel { background-color: #2A2926;"
+                            " border: 1px solid rgba(236, 233, 224, 28);"
                             " border-radius: %1px; padding: 5px 10px; }")
                             .arg(radius);
       interactiveStatusCss = QStringLiteral(
-                                 "QLabel { background-color: rgba(255, 255, 255, 9);"
-                                 " border: 1px solid rgba(255, 255, 255, 24);"
+                                 "QLabel { background-color: #2A2926;"
+                                 " border: 1px solid rgba(236, 233, 224, 28);"
                                  " border-radius: %1px; padding: 5px 10px; }"
-                                 "QLabel:hover { background-color: rgba(59, 130, 246, 38);"
-                                 " border: 1px solid rgba(96, 165, 250, 135); }")
+                                 "QLabel:hover { background-color: rgba(217, 119, 87, 36);"
+                                 " border: 1px solid #D97757; }")
                                  .arg(radius);
     } else {
       staticStatusCss = QStringLiteral(
-                            "QLabel { background-color: #ffffff;"
-                            " border: 1px solid #cbd5e1;"
+                            "QLabel { background-color: #F3F1E9;"
+                            " border: 1px solid #E5E2D9;"
                             " border-radius: %1px; padding: 5px 10px; }")
                             .arg(radius);
       interactiveStatusCss = QStringLiteral(
-                                 "QLabel { background-color: #ffffff;"
-                                 " border: 1px solid #cbd5e1;"
+                                 "QLabel { background-color: #F3F1E9;"
+                                 " border: 1px solid #E5E2D9;"
                                  " border-radius: %1px; padding: 5px 10px; }"
-                                 "QLabel:hover { background-color: #eff6ff;"
-                                 " border: 1px solid #60a5fa; }")
+                                 "QLabel:hover { background-color: #F6E5DF;"
+                                 " border: 1px solid #C96442; }")
                                  .arg(radius);
     }
   } else {
@@ -280,26 +280,26 @@ void MainWindow::changeEventTrigger(bool fontChange){
   const QString toolboxCss = dark
       ? QStringLiteral(
             "QFrame#toolbox_group {"
-            "  background-color: rgba(255, 255, 255, 8);"
-            "  border: 1px solid rgba(255, 255, 255, 22);"
-            "  border-radius: 8px;"
+            "  background-color: #2A2926;"
+            "  border: 1px solid rgba(236, 233, 224, 26);"
+            "  border-radius: 10px;"
             "}"
             "QFrame#toolbox_group QToolButton {"
             "  background: transparent;"
             "  border: 1px solid transparent;"
-            "  border-radius: 6px;"
+            "  border-radius: 8px;"
             "  padding: 4px 10px;"
-            "  color: #eef2f6;"
+            "  color: #ECE9E0;"
             "  font-weight: 500;"
             "}"
             "QFrame#toolbox_group QToolButton:hover {"
-            "  background-color: rgba(59, 130, 246, 48);"
-            "  border: 1px solid rgba(96, 165, 250, 135);"
-            "  color: #ffffff;"
+            "  background-color: #35332E;"
+            "  border: 1px solid rgba(217, 119, 87, 120);"
+            "  color: #FFFFFF;"
             "}"
             "QFrame#toolbox_group QToolButton:pressed {"
-            "  background-color: rgba(37, 99, 235, 105);"
-            "  border: 1px solid #60a5fa;"
+            "  background-color: rgba(217, 119, 87, 72);"
+            "  border: 1px solid #D97757;"
             "}"
             "QFrame#toolbox_group QToolButton::menu-indicator {"
             "  image: none;"
@@ -307,26 +307,27 @@ void MainWindow::changeEventTrigger(bool fontChange){
             "}")
       : QStringLiteral(
             "QFrame#toolbox_group {"
-            "  background-color: #ffffff;"
-            "  border: 1px solid #cbd5e1;"
-            "  border-radius: 8px;"
+            "  background-color: #F0EEE6;"
+            "  border: 1px solid #E5E2D9;"
+            "  border-radius: 10px;"
             "}"
             "QFrame#toolbox_group QToolButton {"
             "  background: transparent;"
             "  border: 1px solid transparent;"
-            "  border-radius: 6px;"
+            "  border-radius: 8px;"
             "  padding: 4px 10px;"
-            "  color: #0f172a;"
+            "  color: #141413;"
             "  font-weight: 500;"
             "}"
             "QFrame#toolbox_group QToolButton:hover {"
-            "  background-color: #eff6ff;"
-            "  border: 1px solid #60a5fa;"
-            "  color: #1d4ed8;"
+            "  background-color: #FFFFFF;"
+            "  border: 1px solid #D5D1C7;"
+            "  color: #141413;"
             "}"
             "QFrame#toolbox_group QToolButton:pressed {"
-            "  background-color: #dbeafe;"
-            "  border: 1px solid #2563eb;"
+            "  background-color: #F6E5DF;"
+            "  border: 1px solid #C96442;"
+            "  color: #9E4426;"
             "}"
             "QFrame#toolbox_group QToolButton::menu-indicator {"
             "  image: none;"
@@ -337,26 +338,26 @@ void MainWindow::changeEventTrigger(bool fontChange){
   const QString startStopCss = dark
       ? QStringLiteral(
             "QToolButton {"
-            "  background-color: rgba(255, 255, 255, 10);"
-            "  border: 1px solid rgba(255, 255, 255, 26);"
-            "  border-radius: 8px;"
+            "  background-color: #2A2926;"
+            "  border: 1px solid rgba(236, 233, 224, 28);"
+            "  border-radius: 10px;"
             "  padding: 2px;"
             "}"
             "QToolButton:hover {"
-            "  background-color: rgba(59, 130, 246, 48);"
-            "  border: 1px solid #60a5fa;"
+            "  background-color: rgba(217, 119, 87, 38);"
+            "  border: 1px solid #D97757;"
             "}"
             "QToolButton::menu-indicator { image: none; width: 0px; }")
       : QStringLiteral(
             "QToolButton {"
-            "  background-color: #ffffff;"
-            "  border: 1px solid #cbd5e1;"
-            "  border-radius: 8px;"
+            "  background-color: #FFFFFF;"
+            "  border: 1px solid #E5E2D9;"
+            "  border-radius: 10px;"
             "  padding: 2px;"
             "}"
             "QToolButton:hover {"
-            "  background-color: #eff6ff;"
-            "  border: 1px solid #60a5fa;"
+            "  background-color: #F6E5DF;"
+            "  border: 1px solid #C96442;"
             "}"
             "QToolButton::menu-indicator { image: none; width: 0px; }");
   applyCssIfChanged(ui->start_stop_button, startStopCss);
@@ -364,28 +365,34 @@ void MainWindow::changeEventTrigger(bool fontChange){
   const QString testBtnCss = dark
       ? QStringLiteral(
             "QPushButton {"
-            "  background-color: rgba(37, 99, 235, 200);"
-            "  color: #ffffff;"
-            "  border: 1px solid #60a5fa;"
-            "  border-radius: 6px;"
+            "  background-color: #D97757;"
+            "  color: #FFFFFF;"
+            "  border: 1px solid #E2886B;"
+            "  border-radius: 8px;"
             "  padding: 5px 16px;"
             "  font-weight: 600;"
             "}"
             "QPushButton:hover {"
-            "  background-color: rgba(59, 130, 246, 235);"
+            "  background-color: #E2886B;"
+            "}"
+            "QPushButton:pressed {"
+            "  background-color: #C96442;"
             "}"
             "QPushButton::menu-indicator { image: none; width: 0px; }")
       : QStringLiteral(
             "QPushButton {"
-            "  background-color: #2563eb;"
-            "  color: #ffffff;"
-            "  border: 1px solid #1d4ed8;"
-            "  border-radius: 6px;"
+            "  background-color: #C96442;"
+            "  color: #FFFFFF;"
+            "  border: 1px solid #B85737;"
+            "  border-radius: 8px;"
             "  padding: 5px 16px;"
             "  font-weight: 600;"
             "}"
             "QPushButton:hover {"
-            "  background-color: #1d4ed8;"
+            "  background-color: #B85737;"
+            "}"
+            "QPushButton:pressed {"
+            "  background-color: #A84C2C;"
             "}"
             "QPushButton::menu-indicator { image: none; width: 0px; }");
   applyCssIfChanged(ui->url_test_button, testBtnCss);
@@ -394,22 +401,22 @@ void MainWindow::changeEventTrigger(bool fontChange){
       ? QStringLiteral(
             "QSplitter#splitter::handle:vertical {"
             "  height: 8px;"
-            "  background-color: rgba(255, 255, 255, 14);"
-            "  border-radius: 3px;"
+            "  background-color: rgba(236, 233, 224, 22);"
+            "  border-radius: 4px;"
             "  margin: 1px 36px;"
             "}"
             "QSplitter#splitter::handle:vertical:hover {"
-            "  background-color: rgba(96, 165, 250, 175);"
+            "  background-color: #D97757;"
             "}")
       : QStringLiteral(
             "QSplitter#splitter::handle:vertical {"
             "  height: 8px;"
-            "  background-color: #e2e8f0;"
-            "  border-radius: 3px;"
+            "  background-color: #E5E2D9;"
+            "  border-radius: 4px;"
             "  margin: 1px 36px;"
             "}"
             "QSplitter#splitter::handle:vertical:hover {"
-            "  background-color: #60a5fa;"
+            "  background-color: #C96442;"
             "}");
   applyCssIfChanged(ui->splitter, splitterCss);
 }
@@ -3001,8 +3008,8 @@ void MainWindow::UpdateDataView(bool force) {
         QString(
             "<p style='text-align:center;margin:0;'>Running Speedtest: %1</p>"
             "<div style='text-align: center;'>"
-            "<span style='color: #3299FF;'>Dl↓ %2</span>  "
-            "<span style='color: #86C43F;'>Ul↑ %3</span>"
+            "<span style='color: #D97757;'>Dl↓ %2</span>  "
+            "<span style='color: #4CA874;'>Ul↑ %3</span>"
             "</div>"
             "<p style='text-align:center;margin:0;'>Server: %4%5, %6</p>")
             .arg(currentSptProfileName,
